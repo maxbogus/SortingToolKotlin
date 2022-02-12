@@ -1,19 +1,89 @@
 package sorting
 
-fun main(args: Array<String>) {
-    val type = if (args[0] == "-dataType") {
-        args[1]
-    } else {
-        "word"
-    }
+private const val SORT_ARGUMENT = "-sortIntegers"
+private const val DATA_TYPE_ARGUMENT = "-dataType"
 
+fun main(args: Array<String>) {
     val lines: MutableList<String> = parseInput()
 
-    when (type) {
-        "long" -> countGreatestNumber(lines)
-        "word" -> findLongestWord(lines)
-        else -> findLongestLine(lines)
+    if (args.contains(SORT_ARGUMENT)) {
+        sortInts(lines)
+    } else {
+        val type = if (args[0] == DATA_TYPE_ARGUMENT) {
+            args[1]
+        } else {
+            "word"
+        }
+
+
+
+        when (type) {
+            "long" -> countGreatestNumber(lines)
+            "word" -> findLongestWord(lines)
+            else -> findLongestLine(lines)
+        }
     }
+}
+
+fun sortInts(lines: MutableList<String>) {
+    val unsortedArray = parseStringsIntoArray(lines)
+
+    val sortedArray: List<Int> = mergeSort(unsortedArray)
+
+    println("Total numbers: ${sortedArray.size}.")
+    println("Sorted data: ${sortedArray.joinToString(" ")}")
+}
+
+fun mergeSort(unsortedArray: MutableList<Int>): List<Int> {
+    if (unsortedArray.size <= 1) {
+        return unsortedArray
+    }
+    var leftList = unsortedArray.subList(0, unsortedArray.size / 2).toMutableList()
+    var rightList = unsortedArray.subList(unsortedArray.size / 2, unsortedArray.lastIndex + 1).toMutableList()
+
+    leftList = mergeSort(leftList) as MutableList<Int>
+    rightList = mergeSort(rightList) as MutableList<Int>
+
+    return mergeList(leftList, rightList)
+}
+
+fun mergeList(leftList: MutableList<Int>, rightList: MutableList<Int>): List<Int> {
+    val result = mutableListOf<Int>()
+
+    do {
+        if (leftList.first() <= rightList.first()) {
+            result.add(leftList.first())
+            leftList.removeAt(0)
+        } else {
+            result.add(rightList.first())
+            rightList.removeAt(0)
+        }
+    } while (leftList.size > 0 && rightList.size > 0)
+
+    do {
+        if (leftList.size > 0) {
+            result.add(leftList.first())
+            leftList.removeAt(0)
+        }
+    } while (leftList.size > 0)
+
+    do {
+        if (rightList.size > 0) {
+            result.add(rightList.first())
+            rightList.removeAt(0)
+        }
+    } while (rightList.size > 0)
+
+    return result
+}
+
+private fun parseStringsIntoArray(lines: MutableList<String>): MutableList<Int> {
+    val unsortedArray = mutableListOf<Int>()
+    if (lines.filter { it != "" }.isEmpty()) {
+        return unsortedArray
+    }
+    lines.forEach { s -> s.split("\\s+".toRegex()).map { it.toInt() }.forEach { unsortedArray.add(it) } }
+    return unsortedArray
 }
 
 fun findLongestLine(lines: MutableList<String>) {
