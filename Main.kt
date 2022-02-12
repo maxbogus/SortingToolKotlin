@@ -17,12 +17,49 @@ fun main(args: Array<String>) {
 }
 
 fun findLongestLine(lines: MutableList<String>) {
-    TODO("Not yet implemented")
+    var largestLine = ""
+    for (line in lines) {
+        if (line.length > largestLine.length) {
+            largestLine = line
+        }
+    }
+    val count = lines.count { it == largestLine }
+
+    println("Total lines: ${lines.size}.")
+    println("The longest line:")
+    println(largestLine)
+    println("(${count} time(s), ${calculatePercentage(count.toFloat(), lines.size.toFloat())}%).")
 }
 
 fun findLongestWord(lines: MutableList<String>) {
-    TODO("Not yet implemented")
+    var longestWord = ""
+    var longestWordCounter = 1
+    var totalWordsCounter = 0
+    for (line in lines) {
+        val words = line.split("\\s+".toRegex())
+        for (word in words) {
+            if (word.length > longestWord.length) {
+                longestWord = word
+                longestWordCounter = 1
+            } else if (word == longestWord) {
+                longestWordCounter += 1
+            }
+            totalWordsCounter++
+        }
+    }
+    println("Total words: ${totalWordsCounter}.")
+    println(
+        "The longest word: $longestWord (${longestWordCounter} time(s), ${
+            calculatePercentage(
+                longestWordCounter.toFloat(),
+                totalWordsCounter.toFloat()
+            )
+        }%)."
+    )
 }
+
+private fun calculatePercentage(longestWordCounter: Float, totalWordsCounter: Float) =
+    (longestWordCounter / (totalWordsCounter / 100.0)).toInt()
 
 private fun countGreatestNumber(lines: MutableList<String>) {
     val numbers: MutableList<Int> = mutableListOf()
