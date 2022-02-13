@@ -5,11 +5,13 @@ private const val DATA_TYPE_ARGUMENT = "-dataType"
 
 fun main(args: Array<String>) {
     if (args.size % 2 != 0) {
-        println(if (args.contains(SORT_ARGUMENT)) {
-            "No sorting type defined!"
-        } else {
-            "No data type defined!"
-        })
+        println(
+            if (args.contains(SORT_ARGUMENT)) {
+                "No sorting type defined!"
+            } else {
+                "No data type defined!"
+            }
+        )
     } else {
         val settings: MutableMap<String, String> = mutableMapOf(
             SORT_ARGUMENT to "natural",
@@ -71,7 +73,7 @@ fun sortLinesByCount(lines: MutableList<String>) {
     val set = mutableSetOf<String>()
     set.addAll(lines)
     println("Total lines: ${lines.size}")
-    for (line in sortLexicographically(set.toMutableList()) ) {
+    for (line in sortLexicographically(set.toMutableList())) {
         println(line)
     }
 }
