@@ -17,6 +17,14 @@ fun main(args: Array<String>) {
         "byCount" -> sortByCount(lines, settings[DATA_TYPE_ARGUMENT])
     }
 
+//    val test = mutableListOf<String>(
+//        "1 -2   333 4",
+//        "42",
+//        "1                 1"
+//    )
+//
+//    sortLongsByCount(test)
+
 //    if (args.contains(SORT_ARGUMENT)) {
 //        sortInts(lines)
 //    } else {
@@ -34,6 +42,14 @@ fun main(args: Array<String>) {
 //    }
 }
 
+fun sortNaturally(lines: MutableList<String>, dataType: String?) {
+    when (dataType) {
+        "long" -> sortLongsNaturally(lines)
+        "words" -> sortWordsNaturally(lines)
+        else -> sortLines(lines)
+    }
+}
+
 fun sortByCount(lines: MutableList<String>, dataType: String?) {
     when (dataType) {
         "long" -> sortLongsByCount(lines)
@@ -47,18 +63,49 @@ fun sortLinesByCounts(lines: MutableList<String>) {
 }
 
 fun sortWordsByCount(lines: MutableList<String>) {
+    val unsortedArray = parseStringsIntoArray(lines)
     TODO("Not yet implemented")
 }
 
 fun sortLongsByCount(lines: MutableList<String>) {
-    TODO("Not yet implemented")
-}
+    val unsortedArray = parseStringsIntoArray(lines)
 
-fun sortNaturally(lines: MutableList<String>, dataType: String?) {
-    when (dataType) {
-        "long" -> sortLongsNaturally(lines)
-        "words" -> sortWordsNaturally(lines)
-        else -> sortLines(lines)
+    // get unique list of items
+    val set = mutableSetOf<Int>()
+    unsortedArray.forEach { set.add(it) }
+
+    // generate map and fill it with count / date entry
+    val map = mutableMapOf<Int, String>()
+
+    for (item in set) {
+        val numberOfItems = unsortedArray.count { it == item }
+        if (map.containsKey(numberOfItems)) {
+            map[numberOfItems] += " $item"
+        } else {
+            map[numberOfItems] = "$item"
+        }
+    }
+    var keys = mutableListOf<Int>()
+
+    map.keys.forEach { keys.add(it) }
+    keys = mergeSort(keys).toMutableList()
+
+    println("Total numbers: ${unsortedArray.size}.")
+    for (key in keys) {
+        val items = map[key]?.split(" ")?.map { it.toInt() }?.toMutableList()
+        if (items != null) {
+            for (item in mergeSort(items)) {
+                val countItemInUnsorted = unsortedArray.count { it == item }
+                println(
+                    "${item}: $key time(s), ${
+                        calculatePercentage(
+                            countItemInUnsorted.toFloat(),
+                            unsortedArray.size.toFloat()
+                        )
+                    }%"
+                )
+            }
+        }
     }
 }
 
@@ -67,6 +114,7 @@ fun sortLines(lines: MutableList<String>) {
 }
 
 fun sortWordsNaturally(lines: MutableList<String>) {
+    val unsortedArray = parseStringsIntoArray(lines)
     TODO("Not yet implemented")
 }
 
