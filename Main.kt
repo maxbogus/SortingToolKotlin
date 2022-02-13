@@ -9,9 +9,13 @@ fun main(args: Array<String>) {
         DATA_TYPE_ARGUMENT to "word"
     )
     setupSettings(args, settings)
-    println(settings)
 
     val lines: MutableList<String> = parseInput()
+
+    when (settings[SORT_ARGUMENT]) {
+        "natural" -> sortNaturally(lines, settings[DATA_TYPE_ARGUMENT])
+        "byCount" -> sortByCount(lines, settings[DATA_TYPE_ARGUMENT])
+    }
 
 //    if (args.contains(SORT_ARGUMENT)) {
 //        sortInts(lines)
@@ -30,6 +34,32 @@ fun main(args: Array<String>) {
 //    }
 }
 
+fun sortByCount(lines: MutableList<String>, dataType: String?) {
+    when (dataType) {
+        "long" -> sortLongsByCount(lines)
+    }
+}
+
+fun sortLongsByCount(lines: MutableList<String>) {
+    TODO("Not yet implemented")
+}
+
+fun sortNaturally(lines: MutableList<String>, dataType: String?) {
+    when (dataType) {
+        "long" -> sortLongsNaturally(lines)
+        "words" -> sortWordsNaturally(lines)
+        else -> sortLines(lines)
+    }
+}
+
+fun sortLines(lines: MutableList<String>) {
+    TODO("Not yet implemented")
+}
+
+fun sortWordsNaturally(lines: MutableList<String>) {
+    TODO("Not yet implemented")
+}
+
 private fun setupSettings(
     args: Array<String>,
     settings: MutableMap<String, String>
@@ -44,14 +74,12 @@ private fun setupSettings(
         }
     }
 
-
-
     for (index in 0 until options.size) {
         settings[options[index]] = values[index]
     }
 }
 
-fun sortInts(lines: MutableList<String>) {
+fun sortLongsNaturally(lines: MutableList<String>) {
     val unsortedArray = parseStringsIntoArray(lines)
 
     val sortedArray: List<Int> = mergeSort(unsortedArray)
