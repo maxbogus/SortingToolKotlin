@@ -37,7 +37,17 @@ fun main(args: Array<String>) {
 fun sortByCount(lines: MutableList<String>, dataType: String?) {
     when (dataType) {
         "long" -> sortLongsByCount(lines)
+        "words" -> sortWordsByCount(lines)
+        else -> sortLinesByCounts(lines)
     }
+}
+
+fun sortLinesByCounts(lines: MutableList<String>) {
+    TODO("Not yet implemented")
+}
+
+fun sortWordsByCount(lines: MutableList<String>) {
+    TODO("Not yet implemented")
 }
 
 fun sortLongsByCount(lines: MutableList<String>) {
