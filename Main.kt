@@ -1,27 +1,53 @@
 package sorting
 
-private const val SORT_ARGUMENT = "-sortIntegers"
+private const val SORT_ARGUMENT = "-sortingType"
 private const val DATA_TYPE_ARGUMENT = "-dataType"
 
 fun main(args: Array<String>) {
+    val settings: MutableMap<String, String> = mutableMapOf(
+        SORT_ARGUMENT to "natural",
+        DATA_TYPE_ARGUMENT to "word"
+    )
+    setupSettings(args, settings)
+    println(settings)
+
     val lines: MutableList<String> = parseInput()
 
-    if (args.contains(SORT_ARGUMENT)) {
-        sortInts(lines)
-    } else {
-        val type = if (args[0] == DATA_TYPE_ARGUMENT) {
-            args[1]
+//    if (args.contains(SORT_ARGUMENT)) {
+//        sortInts(lines)
+//    } else {
+//        val type = if (args[0] == DATA_TYPE_ARGUMENT) {
+//            args[1]
+//        } else {
+//            "word"
+//        }
+//
+//        when (type) {
+//            "long" -> countGreatestNumber(lines)
+//            "word" -> findLongestWord(lines)
+//            else -> findLongestLine(lines)
+//        }
+//    }
+}
+
+private fun setupSettings(
+    args: Array<String>,
+    settings: MutableMap<String, String>
+) {
+    val options = mutableListOf<String>()
+    val values = mutableListOf<String>()
+    for ((counter, arg) in args.withIndex()) {
+        if (counter % 2 == 0) {
+            options.add(arg)
         } else {
-            "word"
+            values.add(arg)
         }
+    }
 
 
 
-        when (type) {
-            "long" -> countGreatestNumber(lines)
-            "word" -> findLongestWord(lines)
-            else -> findLongestLine(lines)
-        }
+    for (index in 0 until options.size) {
+        settings[options[index]] = values[index]
     }
 }
 
