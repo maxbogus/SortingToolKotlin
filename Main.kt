@@ -4,17 +4,25 @@ private const val SORT_ARGUMENT = "-sortingType"
 private const val DATA_TYPE_ARGUMENT = "-dataType"
 
 fun main(args: Array<String>) {
-    val settings: MutableMap<String, String> = mutableMapOf(
-        SORT_ARGUMENT to "natural",
-        DATA_TYPE_ARGUMENT to "word"
-    )
-    setupSettings(args, settings)
+    if (args.size % 2 != 0) {
+        println(if (args.contains(SORT_ARGUMENT)) {
+            "No sorting type defined!"
+        } else {
+            "No data type defined!"
+        })
+    } else {
+        val settings: MutableMap<String, String> = mutableMapOf(
+            SORT_ARGUMENT to "natural",
+            DATA_TYPE_ARGUMENT to "word"
+        )
+        setupSettings(args, settings)
 
-    val lines: MutableList<String> = parseInput()
+        val lines: MutableList<String> = parseInput()
 
-    when (settings[SORT_ARGUMENT]) {
-        "natural" -> sortNaturally(lines, settings[DATA_TYPE_ARGUMENT])
-        "byCount" -> sortByCount(lines, settings[DATA_TYPE_ARGUMENT])
+        when (settings[SORT_ARGUMENT]) {
+            "natural" -> sortNaturally(lines, settings[DATA_TYPE_ARGUMENT])
+            "byCount" -> sortByCount(lines, settings[DATA_TYPE_ARGUMENT])
+        }
     }
 
 //    val test = mutableListOf<String>(
