@@ -45,7 +45,7 @@ fun main(args: Array<String>) {
 fun sortNaturally(lines: MutableList<String>, dataType: String?) {
     when (dataType) {
         "long" -> sortLongsNaturally(lines)
-        "words" -> sortWordsNaturally(lines)
+        "word" -> sortWordsNaturally(lines)
         else -> sortLines(lines)
     }
 }
@@ -53,7 +53,7 @@ fun sortNaturally(lines: MutableList<String>, dataType: String?) {
 fun sortByCount(lines: MutableList<String>, dataType: String?) {
     when (dataType) {
         "long" -> sortLongsByCount(lines)
-        "words" -> sortWordsByCount(lines)
+        "word" -> sortWordsByCount(lines)
         else -> sortLinesByCounts(lines)
     }
 }
@@ -64,31 +64,26 @@ fun sortLinesByCounts(lines: MutableList<String>) {
 
 fun sortWordsByCount(lines: MutableList<String>) {
     val unsortedArray = parseStringsIntoArray(lines)
+
+    val map = generateMapOfUnsortedArray(unsortedArray)
+    val keys = generateSortedListOfKeys(map)
+
+    println("Total numbers: ${unsortedArray.size}.")
     TODO("Not yet implemented")
+}
+
+private fun generateSortedListOfKeys(map: MutableMap<Int, String>): MutableList<Int> {
+    var keys = mutableListOf<Int>()
+    map.keys.forEach { keys.add(it) }
+    keys = mergeSort(keys).toMutableList()
+    return keys
 }
 
 fun sortLongsByCount(lines: MutableList<String>) {
     val unsortedArray = parseStringsIntoArray(lines)
+    val map = generateMapOfUnsortedArray(unsortedArray)
 
-    // get unique list of items
-    val set = mutableSetOf<Int>()
-    unsortedArray.forEach { set.add(it) }
-
-    // generate map and fill it with count / date entry
-    val map = mutableMapOf<Int, String>()
-
-    for (item in set) {
-        val numberOfItems = unsortedArray.count { it == item }
-        if (map.containsKey(numberOfItems)) {
-            map[numberOfItems] += " $item"
-        } else {
-            map[numberOfItems] = "$item"
-        }
-    }
-    var keys = mutableListOf<Int>()
-
-    map.keys.forEach { keys.add(it) }
-    keys = mergeSort(keys).toMutableList()
+    val keys = generateSortedListOfKeys(map)
 
     println("Total numbers: ${unsortedArray.size}.")
     for (key in keys) {
@@ -107,6 +102,25 @@ fun sortLongsByCount(lines: MutableList<String>) {
             }
         }
     }
+}
+
+private fun generateMapOfUnsortedArray(unsortedArray: MutableList<Int>): MutableMap<Int, String> {
+    // get unique list of items
+    val set = mutableSetOf<Int>()
+    unsortedArray.forEach { set.add(it) }
+
+    // generate map and fill it with count / date entry
+    val map = mutableMapOf<Int, String>()
+
+    for (item in set) {
+        val numberOfItems = unsortedArray.count { it == item }
+        if (map.containsKey(numberOfItems)) {
+            map[numberOfItems] += " $item"
+        } else {
+            map[numberOfItems] = "$item"
+        }
+    }
+    return map
 }
 
 fun sortLines(lines: MutableList<String>) {
