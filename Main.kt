@@ -22,8 +22,9 @@ fun main(args: Array<String>) {
 //        "42",
 //        "1                 1"
 //    )
-//
+
 //    sortLongsByCount(test)
+//    sortWordsByCount(test)
 
 //    if (args.contains(SORT_ARGUMENT)) {
 //        sortInts(lines)
@@ -69,7 +70,7 @@ fun sortWordsByCount(lines: MutableList<String>) {
     val keys = generateSortedListOfKeys(map)
 
     println("Total numbers: ${unsortedArray.size}.")
-    TODO("Not yet implemented")
+    displaySortedItemsByAsStrings(keys, map, unsortedArray)
 }
 
 private fun generateSortedListOfKeys(map: MutableMap<Int, String>): MutableList<Int> {
@@ -86,10 +87,19 @@ fun sortLongsByCount(lines: MutableList<String>) {
     val keys = generateSortedListOfKeys(map)
 
     println("Total numbers: ${unsortedArray.size}.")
+    displaySortedItemsByKeysAsInts(keys, map, unsortedArray)
+}
+
+private fun displaySortedItemsByKeysAsInts(
+    keys: MutableList<Int>,
+    map: MutableMap<Int, String>,
+    unsortedArray: MutableList<Int>
+) {
     for (key in keys) {
         val items = map[key]?.split(" ")?.map { it.toInt() }?.toMutableList()
         if (items != null) {
-            for (item in mergeSort(items)) {
+            val sortedItems = mergeSort(items)
+            for (item in sortedItems) {
                 val countItemInUnsorted = unsortedArray.count { it == item }
                 println(
                     "${item}: $key time(s), ${
@@ -102,6 +112,43 @@ fun sortLongsByCount(lines: MutableList<String>) {
             }
         }
     }
+}
+
+private fun displaySortedItemsByAsStrings(
+    keys: MutableList<Int>,
+    map: MutableMap<Int, String>,
+    unsortedArray: MutableList<Int>,
+) {
+    for (key in keys) {
+        val items = map[key]?.split(" ")?.toMutableList()
+        if (items != null) {
+            val sortedItems = sortLexicographically(items)
+            for (item in sortedItems) {
+                val countItemInUnsorted = unsortedArray.count { it == item.toInt() }
+                println(
+                    "${item}: $key time(s), ${
+                        calculatePercentage(
+                            countItemInUnsorted.toFloat(),
+                            unsortedArray.size.toFloat()
+                        )
+                    }%"
+                )
+            }
+        }
+    }
+}
+
+fun sortLexicographically(items: MutableList<String>): List<String> {
+    for (firstWordIndex in 0..items.size - 2) {
+        for (secondWordIndex in firstWordIndex + 1 until items.size) {
+            if (items[firstWordIndex].compareTo(items[secondWordIndex]) > 0) {
+                val temp = items[firstWordIndex]
+                items[firstWordIndex] = items[secondWordIndex]
+                items[secondWordIndex] = temp
+            }
+        }
+    }
+    return items.toList()
 }
 
 private fun generateMapOfUnsortedArray(unsortedArray: MutableList<Int>): MutableMap<Int, String> {
