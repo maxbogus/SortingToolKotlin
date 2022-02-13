@@ -55,12 +55,17 @@ fun sortByCount(lines: MutableList<String>, dataType: String?) {
     when (dataType) {
         "long" -> sortLongsByCount(lines)
         "word" -> sortWordsByCount(lines)
-        else -> sortLinesByCounts(lines)
+        else -> sortLinesByCount(lines)
     }
 }
 
-fun sortLinesByCounts(lines: MutableList<String>) {
-    TODO("Not yet implemented")
+fun sortLinesByCount(lines: MutableList<String>) {
+    val set = mutableSetOf<String>()
+    set.addAll(lines)
+    println("Total lines: ${lines.size}")
+    for (line in sortLexicographically(set.toMutableList()) ) {
+        println(line)
+    }
 }
 
 fun sortWordsByCount(lines: MutableList<String>) {
@@ -165,6 +170,25 @@ private fun generateMapOfUnsortedArray(unsortedArray: MutableList<Int>): Mutable
             map[numberOfItems] += " $item"
         } else {
             map[numberOfItems] = "$item"
+        }
+    }
+    return map
+}
+
+private fun generateMapOfUnsortedArrayOfStrings(unsortedArray: MutableList<String>): MutableMap<Int, String> {
+    // get unique list of items
+    val set = mutableSetOf<String>()
+    unsortedArray.forEach { set.add(it) }
+
+    // generate map and fill it with count / date entry
+    val map = mutableMapOf<Int, String>()
+
+    for (item in set) {
+        val numberOfItems = unsortedArray.count { it == item }
+        if (map.containsKey(numberOfItems)) {
+            map[numberOfItems] += "|$item"
+        } else {
+            map[numberOfItems] = item
         }
     }
     return map
