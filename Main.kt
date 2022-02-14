@@ -1,7 +1,11 @@
 package sorting
 
+import java.io.File
+
 private const val SORT_ARGUMENT = "-sortingType"
 private const val DATA_TYPE_ARGUMENT = "-dataType"
+private const val DATA_INPUT_ARGUMENT = "-inputFile"
+private const val DATA_OUTPUT_ARGUMENT = "-outputFile"
 
 fun main(args: Array<String>) {
     if (args.size % 2 != 0) {
@@ -15,77 +19,81 @@ fun main(args: Array<String>) {
     } else {
         val settings: MutableMap<String, String> = mutableMapOf(
             SORT_ARGUMENT to "natural",
-            DATA_TYPE_ARGUMENT to "word"
+            DATA_TYPE_ARGUMENT to "word",
+            DATA_INPUT_ARGUMENT to "none",
+            DATA_OUTPUT_ARGUMENT to "none"
         )
+
         setupSettings(args, settings)
 
-        val lines: MutableList<String> = parseInput()
+        val lines: MutableList<String>? =
+            if (settings[DATA_INPUT_ARGUMENT] == "none") parseInput() else settings[DATA_INPUT_ARGUMENT]?.let {
+                parseFile(
+                    it
+                )
+            }
 
-        when (settings[SORT_ARGUMENT]) {
-            "natural" -> sortNaturally(lines, settings[DATA_TYPE_ARGUMENT])
-            "byCount" -> sortByCount(lines, settings[DATA_TYPE_ARGUMENT])
+        if (lines != null) {
+            when (settings[SORT_ARGUMENT]) {
+                "natural" -> sortNaturally(lines, settings)
+                "byCount" -> sortByCount(lines, settings)
+            }
         }
-    }
 
-//    val test = mutableListOf<String>(
-//        "1 -2   333 4",
-//        "42",
-//        "1                 1"
-//    )
-
-//    sortLongsByCount(test)
-//    sortWordsByCount(test)
-
-//    if (args.contains(SORT_ARGUMENT)) {
-//        sortInts(lines)
-//    } else {
-//        val type = if (args[0] == DATA_TYPE_ARGUMENT) {
-//            args[1]
-//        } else {
-//            "word"
-//        }
-//
-//        when (type) {
-//            "long" -> countGreatestNumber(lines)
-//            "word" -> findLongestWord(lines)
-//            else -> findLongestLine(lines)
-//        }
-//    }
-}
-
-fun sortNaturally(lines: MutableList<String>, dataType: String?) {
-    when (dataType) {
-        "long" -> sortLongsNaturally(lines)
-        "word" -> sortWordsNaturally(lines)
-        else -> sortLines(lines)
     }
 }
 
-fun sortByCount(lines: MutableList<String>, dataType: String?) {
-    when (dataType) {
-        "long" -> sortLongsByCount(lines)
-        "word" -> sortWordsByCount(lines)
-        else -> sortLinesByCount(lines)
+fun parseFile(fileName: String): MutableList<String> {
+    return File(fileName).readLines().toMutableList()
+}
+
+fun sortNaturally(lines: MutableList<String>, settings: MutableMap<String, String>) {
+    when (settings[DATA_TYPE_ARGUMENT]) {
+        "long" -> sortLongsNaturally(lines, settings)
+        "word" -> sortWordsNaturally(lines, settings)
+        else -> sortLines(lines, settings)
     }
 }
 
-fun sortLinesByCount(lines: MutableList<String>) {
+fun sortByCount(lines: MutableList<String>, settings: MutableMap<String, String>) {
+    when (settings[DATA_TYPE_ARGUMENT]) {
+        "long" -> sortLongsByCount(lines, settings)
+        "word" -> sortWordsByCount(lines, settings)
+        else -> sortLinesByCount(lines, settings)
+    }
+}
+
+fun sortLinesByCount(lines: MutableList<String>, settings: MutableMap<String, String>) {
     val set = mutableSetOf<String>()
     set.addAll(lines)
-    println("Total lines: ${lines.size}")
+    val output: MutableList<String> = mutableListOf()
+    output.add("Total lines: ${lines.size}")
     for (line in sortLexicographically(set.toMutableList())) {
-        println(line)
+        output.add(line)
+    }
+    provideOutput(output, settings)
+}
+
+private fun provideOutput(
+    output: MutableList<String>,
+    settings: MutableMap<String, String>
+) {
+    for (line in output) {
+        if (settings[DATA_OUTPUT_ARGUMENT] == "none") {
+            println(line)
+        } else {
+            File("${settings[DATA_OUTPUT_ARGUMENT]}").appendText(line)
+        }
     }
 }
 
-fun sortWordsByCount(lines: MutableList<String>) {
+fun sortWordsByCount(lines: MutableList<String>, settings: MutableMap<String, String>) {
     val unsortedArray = parseStringsIntoArray(lines)
 
     val map = generateMapOfUnsortedArray(unsortedArray)
     val keys = generateSortedListOfKeys(map)
 
-    println("Total numbers: ${unsortedArray.size}.")
-    displaySortedItemsByAsStrings(keys, map, unsortedArray)
+    provideOutput(displaySortedItemsByAsStrings(keys, map, unsortedArray), settings)
 }
 
 private fun generateSortedListOfKeys(map: MutableMap<Int, String>): MutableList<Int> {
@@ -95,28 +103,29 @@ private fun generateSortedListOfKeys(map: MutableMap<Int, String>): MutableList<
     return keys
 }
 
-fun sortLongsByCount(lines: MutableList<String>) {
+fun sortLongsByCount(lines: MutableList<String>, settings: MutableMap<String, String>) {
     val unsortedArray = parseStringsIntoArray(lines)
     val map = generateMapOfUnsortedArray(unsortedArray)
 
     val keys = generateSortedListOfKeys(map)
 
-    println("Total numbers: ${unsortedArray.size}.")
-    displaySortedItemsByKeysAsInts(keys, map, unsortedArray)
+    provideOutput(storeOutput(keys, map, unsortedArray), settings)
 }
 
-private fun displaySortedItemsByKeysAsInts(
+private fun storeOutput(
     keys: MutableList<Int>,
     map: MutableMap<Int, String>,
-    unsortedArray: MutableList<Int>
-) {
+    unsortedArray: MutableList<Int>,
+    type: String = "longs"
+): MutableList<String> {
+    val mutableList: MutableList<String> = mutableListOf("Total ${type}: ${unsortedArray.size}.")
     for (key in keys) {
         val items = map[key]?.split(" ")?.map { it.toInt() }?.toMutableList()
         if (items != null) {
             val sortedItems = mergeSort(items)
             for (item in sortedItems) {
                 val countItemInUnsorted = unsortedArray.count { it == item }
-                println(
+                mutableList.add(
                     "${item}: $key time(s), ${
                         calculatePercentage(
                             countItemInUnsorted.toFloat(),
@@ -127,20 +136,22 @@ private fun displaySortedItemsByKeysAsInts(
             }
         }
     }
+    return mutableList
 }
 
 private fun displaySortedItemsByAsStrings(
     keys: MutableList<Int>,
     map: MutableMap<Int, String>,
     unsortedArray: MutableList<Int>,
-) {
+): MutableList<String> {
+    val list = mutableListOf<String>("Total numbers: ${unsortedArray.size}.")
     for (key in keys) {
         val items = map[key]?.split(" ")?.toMutableList()
         if (items != null) {
             val sortedItems = sortLexicographically(items)
             for (item in sortedItems) {
                 val countItemInUnsorted = unsortedArray.count { it == item.toInt() }
-                println(
+                list.add(
                     "${item}: $key time(s), ${
                         calculatePercentage(
                             countItemInUnsorted.toFloat(),
@@ -151,6 +162,7 @@ private fun displaySortedItemsByAsStrings(
             }
         }
     }
+    return list
 }
 
 fun sortLexicographically(items: MutableList<String>): List<String> {
@@ -204,11 +216,11 @@ private fun generateMapOfUnsortedArrayOfStrings(unsortedArray: MutableList<Strin
     return map
 }
 
-fun sortLines(lines: MutableList<String>) {
+fun sortLines(lines: MutableList<String>, settings: MutableMap<String, String>) {
     TODO("Not yet implemented")
 }
 
-fun sortWordsNaturally(lines: MutableList<String>) {
+fun sortWordsNaturally(lines: MutableList<String>, settings: MutableMap<String, String>) {
     val unsortedArray = parseStringsIntoArray(lines)
     TODO("Not yet implemented")
 }
@@ -232,7 +244,7 @@ private fun setupSettings(
     }
 }
 
-fun sortLongsNaturally(lines: MutableList<String>) {
+fun sortLongsNaturally(lines: MutableList<String>, settings: MutableMap<String, String>) {
     val unsortedArray = parseStringsIntoArray(lines)
 
     val sortedArray: List<Int> = mergeSort(unsortedArray)
@@ -293,73 +305,8 @@ private fun parseStringsIntoArray(lines: MutableList<String>): MutableList<Int> 
     return unsortedArray
 }
 
-fun findLongestLine(lines: MutableList<String>) {
-    var largestLine = ""
-    for (line in lines) {
-        if (line.length > largestLine.length) {
-            largestLine = line
-        }
-    }
-    val count = lines.count { it == largestLine }
-
-    println("Total lines: ${lines.size}.")
-    println("The longest line:")
-    println(largestLine)
-    println("(${count} time(s), ${calculatePercentage(count.toFloat(), lines.size.toFloat())}%).")
-}
-
-fun findLongestWord(lines: MutableList<String>) {
-    var longestWord = ""
-    var longestWordCounter = 1
-    var totalWordsCounter = 0
-    for (line in lines) {
-        val words = line.split("\\s+".toRegex())
-        for (word in words) {
-            if (word.length > longestWord.length) {
-                longestWord = word
-                longestWordCounter = 1
-            } else if (word == longestWord) {
-                longestWordCounter += 1
-            }
-            totalWordsCounter++
-        }
-    }
-    println("Total words: ${totalWordsCounter}.")
-    println(
-        "The longest word: $longestWord (${longestWordCounter} time(s), ${
-            calculatePercentage(
-                longestWordCounter.toFloat(),
-                totalWordsCounter.toFloat()
-            )
-        }%)."
-    )
-}
-
 private fun calculatePercentage(longestWordCounter: Float, totalWordsCounter: Float) =
     (longestWordCounter / (totalWordsCounter / 100.0)).toInt()
-
-private fun countGreatestNumber(lines: MutableList<String>) {
-    val numbers: MutableList<Int> = mutableListOf()
-    for (line in lines) {
-        for (number in line.split("\\s+".toRegex()).map { it.toInt() }) {
-            numbers.add(number)
-        }
-    }
-
-    var greatestNumber: Int = Int.MIN_VALUE
-    var counter = 0
-    for (number in numbers) {
-        if (number > greatestNumber) {
-            greatestNumber = number
-            counter = 1
-        } else if (number == greatestNumber) {
-            counter++
-        }
-    }
-
-    println("Total numbers: ${numbers.size}.")
-    println("The greatest number: $greatestNumber (${counter} time(s)).")
-}
 
 private fun parseInput(): MutableList<String> {
     val lines = mutableListOf<String>()
